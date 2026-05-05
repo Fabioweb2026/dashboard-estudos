@@ -20,41 +20,35 @@
         }
 
         body {
-            body { 
-    /* Nova imagem: Pessoa estudando no notebook */
-    background-image: url('https://unsplash.com'); 
-    
-    background-size: cover; 
-    background-position: center; 
-    background-attachment: fixed; 
-    background-color: rgba(0, 0, 0, 0.5); /* Mantém o fundo escurinho para o texto brilhar */
-    background-blend-mode: darken;
-    
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    padding: 20px;
-}
-
+            /* Link direto para a imagem do homem no notebook que você enviou */
+            background-image: url('https://unsplash.com');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: rgba(0, 0, 0, 0.5);
+            background-blend-mode: darken;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+            transition: 0.4s;
+            color: var(--text-main);
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
+        header { text-align: center; margin-bottom: 30px; }
+        
         header h1 {
-            color: #f1c40f; /* Amarelo */
+            color: #f1c40f;
             font-size: 2.5rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             margin: 0;
         }
 
         header p {
-            color: #ffffff; /* Branco */
+            color: #ffffff;
             font-style: italic;
             font-weight: bold;
             margin-top: 5px;
@@ -100,22 +94,22 @@
             margin-top: 5px;
         }
 
-        .quiz-box {
-            text-align: center;
+        /* Estilo para o botão Próxima */
+        .btn-next {
+            background-color: #636e72;
+            color: white;
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+        }
+        .btn-next:hover {
+            background-color: #2d3436;
+            color: #f1c40f;
         }
 
-        .pergunta {
-            font-size: 1.1rem;
-            min-height: 50px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .res-feedback {
-            margin-top: 10px;
-            font-weight: bold;
-            height: 20px;
-        }
+        .quiz-box { text-align: center; }
+        .pergunta { font-size: 1.1rem; min-height: 50px; margin-bottom: 15px; font-weight: bold; }
+        .res-feedback { margin-top: 10px; font-weight: bold; height: 20px; }
 
         #theme-toggle {
             position: fixed;
@@ -125,6 +119,13 @@
             background: rgba(255,255,255,0.2);
             border-radius: 50%;
             padding: 5px;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-bottom: 20px;
+            text-align: center;
+            color: white;
         }
     </style>
 </head>
@@ -142,30 +143,20 @@
         <div class="card">
             <h2>Metas do Dia 📝</h2>
             <input type="text" id="taskInput" placeholder="Nova tarefa...">
-            <button class="btn-main" onclick=button[onclick="proximaPergunta()"] {
-    background-color: #636e72;
-    color: white;
-    margin-top: 15px;
-    border: 2px solid transparent;
-}
-
-button[onclick="proximaPergunta()"]:hover {
-    background-color: #2d3436;
-    border-color: #f1c40f; /* Brilho amarelo ao passar o mouse */
-}"addTask()">Adicionar</button>
-            <ul id="taskList" style="padding: 10px 0;"></ul>
+            <button class="btn-main" onclick="addTask()">Adicionar</button>
+            <ul id="taskList" style="padding: 10px 0; margin: 0;"></ul>
         </div>
 
         <!-- BLOCO 2: QUIZ -->
         <div class="card quiz-box">
             <h2>Revisão de TI 🧠</h2>
-            <div id="pergunta-texto" class="pergunta">Carregando pergunta...</div>
+            <div id="pergunta-texto" class="pergunta">Carregando...</div>
             <div style="display: flex; gap: 10px;">
                 <button class="btn-main" style="background:#2ecc71" onclick="verificar(true)">SIM</button>
                 <button class="btn-main" style="background:#e74c3c" onclick="verificar(false)">NÃO</button>
             </div>
             <div id="feedback" class="res-feedback"></div>
-            <button class="btn-main" style="background:#95a5a6; margin-top: 15px;" onclick="proximaPergunta()">Próxima</button>
+            <button class="btn-next" onclick="proximaPergunta()">Próxima</button>
         </div>
 
         <!-- BLOCO 3: CALCULADORA -->
@@ -181,10 +172,15 @@ button[onclick="proximaPergunta()"]:hover {
         </div>
     </div>
 
+    <footer>
+        <p>© 2026 Dashboard Criado por <strong>Fabio</strong> | Estudante de TI 🚀</p>
+    </footer>
+
     <script>
         function toggleTheme() {
             const body = document.body;
-            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            const theme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', theme);
         }
 
         const perguntas = [
@@ -217,23 +213,22 @@ button[onclick="proximaPergunta()"]:hover {
             indexAtual = (indexAtual + 1) % perguntas.length;
             carregarPergunta();
         }
-function addTask() {
-    const input = document.getElementById('taskInput');
-    if(!input.value) return;
 
-    const li = document.createElement('li');
-    // Adicionamos um <span> para o texto e um <button> para a lixeira
-    li.innerHTML = `
-        <span onclick="this.style.textDecoration='line-through'" style="flex-grow: 1;">${input.value}</span>
-        <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:1.1rem;">🗑️</button>
-    `;
-    
-    // Estilo para deixar o texto de um lado e a lixeira do outro
-    li.style.cssText = "background:rgba(0,0,0,0.05); margin:5px 0; padding:8px 12px; border-radius:10px; list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between;";
-    
-    document.getElementById('taskList').appendChild(li);
-    input.value = '';
-}
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            if(!input.value) return;
+
+            const li = document.createElement('li');
+            li.style.cssText = "background:rgba(0,0,0,0.05); margin:5px 0; padding:8px 12px; border-radius:10px; list-style:none; display:flex; align-items:center; justify-content:space-between; cursor:pointer;";
+            
+            li.innerHTML = `
+                <span onclick="this.style.textDecoration='line-through'" style="flex-grow: 1;">${input.value}</span>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer;">🗑️</button>
+            `;
+            
+            document.getElementById('taskList').appendChild(li);
+            input.value = '';
+        }
 
         function calc(op) {
             const v1 = Number(document.getElementById('n1').value);
@@ -243,14 +238,5 @@ function addTask() {
 
         carregarPergunta();
     </script>
-</body>:
-    <footer style="margin-top: 50px; color: white; text-align: center; font-size: 0.9rem; opacity: 0.8;">
-    <p>© 2026 Desenvolvido por Fabio - Estudante de TI 🚀</p>
-</footer>
-<footer style="margin-top: 40px; padding-bottom: 20px; text-align: center; color: white;">
-    <p style="opacity: 0.8; font-size: 0.9rem;">
-        © 2026 Dashboard Criado por <strong>Fabio</strong> | Estudante de TI 🚀
-    </p>
-</footer>
-
+</body>
 </html>
