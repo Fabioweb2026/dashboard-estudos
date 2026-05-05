@@ -3,160 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Lista de Tarefas</title>
+    <title>Creator Dashboard & Quiz</title>
     <style>
-        /* O CSS que dá cor e centraliza */
+        :root {
+            --bg-color: rgba(240, 242, 245, 0.85);
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --primary: #6c5ce7;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: rgba(26, 26, 46, 0.9);
+            --card-bg: #16213e;
+            --text-main: #e9ecef;
+            --primary: #4834d4;
+        }
+
         body {
-            background: linear-gradient(135deg, #74b9ff, #a29bfe);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: var(--bg-color);
+            background-image: url('https://unsplash.com');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            font-family: 'Segoe UI', sans-serif;
+            color: var(--text-main);
             margin: 0;
-        }
-
-        #caixa-principal {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .entrada {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            transition: 0.4s;
+        }
+
+        header { text-align: center; margin-bottom: 30px; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         input {
-            flex-grow: 1;
-            padding: 12px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            outline: none;
+            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px; box-sizing: border-box;
         }
 
-        button#btn-adicionar {
-            background-color: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
+        button {
+            cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-            text-align: left;
-        }
+        .btn-main { background: var(--primary); color: white; padding: 10px; width: 100%; margin-top: 5px; }
 
-        li {
-            background: #f9f9f9;
-            margin-bottom: 10px;
-            padding: 12px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .concluida {
-            text-decoration: line-through;
-            color: #b2bec3;
-        }
-
-        #btn-limpar {
-            background: none;
-            border: none;
-            color: #636e72;
-            text-decoration: underline;
-            cursor: pointer;
-            margin-top: 15px;
-        }
+        
+        .quiz-box { text-align: center; }
+        .pergunta { font-size: 1.1rem; min-height: 50px; margin-bottom: 15px; font-weight: bold; }
+        .res-feedback { margin-top: 10px; font-weight: bold; height: 20px; }
+        
+        #theme-toggle { position: fixed; top: 20px; right: 20px; font-size: 24px; background: none; }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
-    <div id="caixa-principal">
-        <h1>Minha Lista 📝</h1>
-        
-        <div class="entrada">
-            <input type="text" id="input-tarefa" placeholder="Digite uma tarefa...">
-            <button id="btn-adicionar">OK</button>
+    <button id="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+    <header>
+        <h1>Creator Flow 🚀</h1>
+        <p>"Estudando TI: Um passo de cada vez."</p>
+    </header>
+
+    <div class="dashboard">
+        <!-- BLOCO 1: LISTA DE TAREFAS -->
+        <div class="card">
+            <h2>Metas do Dia 📝</h2>
+            <input type="text" id="taskInput" placeholder="Nova tarefa...">
+            <button class="btn-main" onclick="addTask()">Adicionar</button>
+            <ul id="taskList" style="padding: 10px 0;"></ul>
         </div>
 
-        <ul id="lista-tarefas"></ul>
+        <!-- BLOCO 2: QUIZ SIM/NÃO (NOVO) -->
+        <div class="card quiz-box">
+            <h2>Revisão de TI 🧠</h2>
+            <div id="pergunta-texto" class="pergunta">Carregando pergunta...</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main" style="background:#2ecc71" onclick="verificar(true)">SIM</button>
+                <button class="btn-main" style="background:#e74c3c" onclick="verificar(false)">NÃO</button>
+            </div>
+            <div id="feedback" class="res-feedback"></div>
+            <button class="btn-main" style="background:#95a5a6; margin-top: 15px;" onclick="proximaPergunta()">Próxima</button>
+        </div>
 
-        <button id="btn-limpar">Limpar Tudo</button>
+        
+        <div class="card">
+            <h2>Calculadora 💡</h2>
+            <input type="number" id="n1" placeholder="Valor 1">
+            <input type="number" id="n2" placeholder="Valor 2">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main" onclick="calc('+')">+</button>
+                <button class="btn-main" onclick="calc('*')">x</button>
+            </div>
+            <h3 id="res-calc" style="text-align: center; color: var(--primary);">0</h3>
+        </div>
     </div>
 
     <script>
-        const inputTarefa = document.getElementById('input-tarefa');
-        const btnAdicionar = document.getElementById('btn-adicionar');
-        const listaUl = document.getElementById('lista-tarefas');
-        const btnLimpar = document.getElementById('btn-limpar');
-
-        // Carregar tarefas salvas
-        window.onload = function() {
-            const salvas = JSON.parse(localStorage.getItem('tarefasTI')) || [];
-            salvas.forEach(t => criarElemento(t.texto, t.feita));
-        };
-
-        function adicionarTarefa() {
-            const texto = inputTarefa.value.trim();
-            if (texto === "") return;
-            criarElemento(texto, false);
-            salvarNoStorage();
-            inputTarefa.value = "";
+        
+        function toggleTheme() {
+            const body = document.body;
+            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
         }
 
-        function criarElemento(texto, feita) {
-            const li = document.createElement('li');
-            const classeFeita = feita ? 'concluida' : '';
-            li.innerHTML = `
-                <span onclick="concluir(this)" class="${classeFeita}">${texto}</span>
-                <button onclick="remover(this)" style="background:none; border:none; cursor:pointer;">❌</button>
-            `;
-            listaUl.appendChild(li);
+        
+        const perguntas = [
+            { q: "HTML é uma linguagem de programação?", a: false },
+            { q: "CSS serve para dar estilo à página?", a: true },
+            { q: "JavaScript pode criar alertas no navegador?", a: true },
+            { q: "Bootstrap é um framework de CSS?", a: true },
+            { q: "O <head> é a parte visível do site?", a: false }
+        ];
+
+        let indexAtual = 0;
+
+        function carregarPergunta() {
+            document.getElementById('pergunta-texto').innerText = perguntas[indexAtual].q;
+            document.getElementById('feedback').innerText = "";
         }
 
-        function remover(botao) {
-            botao.parentElement.remove();
-            salvarNoStorage();
-        }
-
-        function concluir(span) {
-            span.classList.toggle('concluida');
-            salvarNoStorage();
-        }
-
-        function salvarNoStorage() {
-            const tarefas = [];
-            document.querySelectorAll('#lista-tarefas li').forEach(li => {
-                tarefas.push({
-                    texto: li.querySelector('span').innerText,
-                    feita: li.querySelector('span').classList.contains('concluida')
-                });
-            });
-            localStorage.setItem('tarefasTI', JSON.stringify(tarefas));
-        }
-
-        btnLimpar.onclick = function() {
-            if(confirm("Apagar lista?")) {
-                listaUl.innerHTML = "";
-                localStorage.removeItem('tarefasTI');
+        function verificar(respostaUser) {
+            const feedback = document.getElementById('feedback');
+            if (respostaUser === perguntas[indexAtual].a) {
+                feedback.innerText = "Correto! ✅";
+                feedback.style.color = "#2ecc71";
+            } else {
+                feedback.innerText = "Errado! ❌";
+                feedback.style.color = "#e74c3c";
             }
-        };
+        }
 
-        btnAdicionar.addEventListener('click', adicionarTarefa);
-        inputTarefa.addEventListener('keypress', (e) => { if (e.key === 'Enter') adicionarTarefa(); });
+        function proximaPergunta() {
+            indexAtual = (indexAtual + 1) % perguntas.length;
+            carregarPergunta();
+        }
+
+        
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            if(!input.value) return;
+            const li = document.createElement('li');
+            li.innerHTML = `<span onclick="this.style.textDecoration='line-through'">${input.value}</span>`;
+            li.style.cssText = "background:rgba(0,0,0,0.05); margin:5px 0; padding:8px; border-radius:5px; list-style:none";
+            document.getElementById('taskList').appendChild(li);
+            input.value = '';
+        }
+
+        
+        function calc(op) {
+            const v1 = Number(document.getElementById('n1').value);
+            const v2 = Number(document.getElementById('n2').value);
+            document.getElementById('res-calc').innerText = op === '+' ? v1 + v2 : v1 * v2;
+        }
+
+    
+        carregarPergunta();
     </script>
 </body>
 </html>
