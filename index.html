@@ -7,144 +7,132 @@
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://jsdelivr.net" rel="stylesheet">
-    <!-- Ícones (Opcional, mas deixa mais bonito) -->
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://jsdelivr.net">
 
     <style>
         body {
             background: linear-gradient(135deg, #74b9ff, #a29bfe);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 20px;
+            border: none;
         }
         .concluida {
             text-decoration: line-through;
-            opacity: 0.6;
+            opacity: 0.5;
         }
         .item-tarefa {
-            transition: all 0.3s ease;
+            transition: 0.2s;
             cursor: pointer;
+            border-bottom: 1px solid #eee !important;
         }
         .item-tarefa:hover {
-            transform: translateX(5px);
+            background-color: #f8f9fa;
         }
     </style>
 </head>
-<body class="d-flex align-items-center justify-content-center">
+<body>
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0 rounded-4 p-4">
-                <h1 class="text-center h3 mb-4">Tarefas 📝</h1>
+        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+            
+            <div class="card shadow-lg p-4">
+                <h2 class="text-center mb-4">Tarefas 📝</h2>
                 
-                <!-- Grupo de Entrada -->
+                <!-- Entrada de Tarefa -->
                 <div class="input-group mb-3">
-                    <input type="text" id="tarefa" class="form-control" placeholder="O que vamos fazer?">
+                    <input type="text" id="tarefa" class="form-control" placeholder="O que precisa fazer?">
                     <button class="btn btn-primary" onclick="adicionar()">
                         <i class="bi bi-plus-lg"></i>
                     </button>
                 </div>
 
-                <!-- Lista de Itens -->
+                <!-- Lista -->
                 <ul id="lista" class="list-group list-group-flush">
-                    <!-- As tarefas entrarão aqui -->
+                    <!-- Itens aparecem aqui -->
                 </ul>
+
+                <!-- Botão Limpar (Opcional) -->
+                <button class="btn btn-sm btn-link text-muted mt-3" onclick="limparTudo()">Limpar lista</button>
             </div>
+
         </div>
     </div>
 </div>
 
 <script>
-    function adicionar() {
-        let input = document.getElementById("tarefa");
-        let texto = input.value;
-        if (texto.trim() === "") return;
+    // Carregar dados ao abrir a página
+    window.onload = () => {
+        const salvas = JSON.parse(localStorage.getItem("tarefas_v1")) || [];
+        salvas.forEach(t => criarElemento(t.texto, t.feita));
+    };
 
-        let li = document.createElement("li");
-        // Classes do Bootstrap para estilizar o item da lista
-        li.className = "list-group-item d-flex justify-content-between align-items-center border-0 mb-2 bg-light rounded-3 item-tarefa";
+    function adicionar() {
+        const input = document.getElementById("tarefa");
+        const texto = input.value.trim();
         
+        if (texto !== "") {
+            criarElemento(texto, false);
+            salvar();
+            input.value = "";
+            input.focus();
+        }
+    }
+
+    function criarElemento(texto, feita) {
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center item-tarefa px-0";
+        
+        const classeFeita = feita ? "concluida" : "";
+
         li.innerHTML = `
-            <span onclick="concluir(this)" class="flex-grow-1">${texto}</span>
-            <button class="btn btn-sm btn-outline-danger border-0" onclick="remover(this)">
+            <span onclick="alternar(this)" class="flex-grow-1 ${classeFeita}">${texto}</span>
+            <button class="btn btn-link text-danger p-0" onclick="remover(this)">
                 <i class="bi bi-trash3"></i>
             </button>
         `;
-
         document.getElementById("lista").appendChild(li);
-        input.value = "";
     }
 
     function remover(botao) {
         botao.parentElement.remove();
+        salvar();
     }
 
-    function concluir(texto) {
-        texto.classList.toggle("concluida");
+    function alternar(span) {
+        span.classList.toggle("concluida");
+        salvar();
     }
 
-    // Atalho: Adicionar ao apertar "Enter"
-    document.getElementById("tarefa").addEventListener("keypress", function(e) {
+    function salvar() {
+        const todos = [];
+        document.querySelectorAll("#lista li").forEach(li => {
+            todos.push({
+                texto: li.querySelector("span").innerText,
+                feita: li.querySelector("span").classList.contains("concluida")
+            });
+        });
+        localStorage.setItem("tarefas_v1", JSON.stringify(todos));
+    }
+
+    function limparTudo() {
+        if(confirm("Deseja apagar todas as tarefas?")) {
+            document.getElementById("lista").innerHTML = "";
+            localStorage.removeItem("tarefas_v1");
+        }
+    }
+
+    // Adicionar com a tecla Enter
+    document.getElementById("tarefa").addEventListener("keypress", (e) => {
         if (e.key === "Enter") adicionar();
     });
 </script>
 
-<!-- JS do Bootstrap -->
-<script src="https://jsdelivr.net"></script>
 </body>
 </html>
-// 1. Carregar as tarefas assim que a página abrir
-window.onload = function() {
-    const tarefasSalvas = JSON.parse(localStorage.getItem("minhasTarefas")) || [];
-    tarefasSalvas.forEach(t => criarElementoTarefa(t.texto, t.concluida));
-};
-
-function adicionar() {
-    let input = document.getElementById("tarefa");
-    let texto = input.value;
-    if (texto.trim() === "") return;
-
-    criarElementoTarefa(texto, false);
-    salvarNoStorage(); // Salva após adicionar
-    input.value = "";
-}
-
-// Função auxiliar para criar o HTML da tarefa
-function criarElementoTarefa(texto, concluida) {
-    let li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center border-0 mb-2 bg-light rounded-3 item-tarefa";
-    
-    let classeConcluida = concluida ? "concluida" : "";
-    
-    li.innerHTML = `
-        <span onclick="concluir(this)" class="flex-grow-1 ${classeConcluida}">${texto}</span>
-        <button class="btn btn-sm btn-outline-danger border-0" onclick="remover(this)">
-            <i class="bi bi-trash3"></i>
-        </button>
-    `;
-    document.getElementById("lista").appendChild(li);
-}
-
-function remover(botao) {
-    botao.parentElement.remove();
-    salvarNoStorage(); // Salva após remover
-}
-
-function concluir(texto) {
-    texto.classList.toggle("concluida");
-    salvarNoStorage(); // Salva após marcar como feita
-}
-
-// 2. Função que varre a lista e salva no LocalStorage
-function salvarNoStorage() {
-    const listaLi = document.querySelectorAll("#lista li");
-    const tarefas = [];
-
-    listaLi.forEach(li => {
-        tarefas.push({
-            texto: li.querySelector("span").innerText,
-            concluida: li.querySelector("span").classList.contains("concluida")
-        });
-    });
-
-    localStorage.setItem("minhasTarefas", JSON.stringify(tarefas));
-}
